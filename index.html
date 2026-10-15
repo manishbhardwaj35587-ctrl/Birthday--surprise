@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#ffedf4" />
+  <title>Happy Birthday, Birthday Girl!</title>
+  <style>
+    :root {
+      --pink: #ff5c9a;
+      --deep: #b72e68;
+      --soft: #fff0f6;
+      --ink: #53283c;
+      --card: rgba(255,255,255,.88);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; overflow-x: hidden;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 15% 15%, #ffe0ed 0 8%, transparent 9%),
+        radial-gradient(circle at 85% 80%, #ffe1ed 0 10%, transparent 11%),
+        linear-gradient(145deg, #fff8fb, #ffe7f0);
+      display: grid; place-items: center; padding: 22px;
+    }
+    .floaties { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+    .floaty { position: absolute; bottom: -60px; opacity: .45; animation: rise linear infinite; }
+    @keyframes rise { to { transform: translateY(-115vh) rotate(25deg); opacity: 0; } }
+    .wrap { position: relative; z-index: 1; width: min(100%, 600px); }
+    .card {
+      background: var(--card); border: 1px solid rgba(255,92,154,.2);
+      border-radius: 28px; padding: clamp(22px, 6vw, 42px);
+      text-align: center; box-shadow: 0 20px 60px rgba(183,46,104,.13);
+      backdrop-filter: blur(10px);
+    }
+    .eyebrow { color: var(--deep); font-size: .78rem; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
+    h1 { font-size: clamp(2rem, 8vw, 3.2rem); line-height: 1.05; margin: 14px 0; color: var(--deep); }
+    h2 { font-size: clamp(1.45rem, 5vw, 2rem); margin: 12px 0; }
+    p { line-height: 1.65; font-size: 1.02rem; }
+    .emoji { font-size: 3.4rem; margin: 12px 0; animation: bob 2s ease-in-out infinite; }
+    @keyframes bob { 50% { transform: translateY(-7px) rotate(3deg); } }
+    .buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 24px; }
+    button {
+      border: 0; border-radius: 999px; padding: 13px 23px; font-size: 1rem;
+      font-weight: 800; cursor: pointer; transition: transform .15s, box-shadow .15s;
+    }
+    button:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(183,46,104,.15); }
+    button:focus-visible { outline: 3px solid #7c2d52; outline-offset: 3px; }
+    .primary { color: white; background: linear-gradient(135deg, var(--pink), var(--deep)); }
+    .secondary { color: var(--deep); background: #ffe1ed; }
+    .progress { height: 7px; border-radius: 10px; background: #ffe1ed; margin: 22px 0 8px; overflow: hidden; }
+    .bar { height: 100%; width: 0%; background: linear-gradient(90deg, #ff8fba, #c73776); transition: width .35s; }
+    .step { color: #9b5875; font-size: .85rem; }
+    .hidden { display: none !important; }
+    .photo { width: min(100%, 260px); max-height: 260px; object-fit: cover; border-radius: 22px; border: 5px solid white; box-shadow: 0 8px 24px #d77ba355; }
+    .small { font-size: .85rem; color: #8c5a70; }
+    .heart { color: var(--pink); }
+    .footer { text-align: center; font-size: .8rem; color: #9b5875; margin-top: 14px; }
+    .confetti { position: fixed; top: -20px; width: 9px; height: 14px; z-index: 5; animation: fall 3.5s linear forwards; pointer-events: none; }
+    @keyframes fall { to { transform: translateY(110vh) rotate(760deg); opacity: .15; } }
+    .edit-note { margin-top: 20px; padding: 12px; border-radius: 14px; background: #fff3f8; font-size: .85rem; }
+  </style>
+</head>
+<body>
+  <div class="floaties" id="floaties" aria-hidden="true"></div>
+  <main class="wrap">
+    <section class="card" id="screen">
+      <div class="eyebrow">A little surprise just for you</div>
+      <div class="emoji" aria-hidden="true">🎀</div>
+      <h1>Hey, Birthday Girl!</h1>
+      <p>Someone who loves you has made a tiny surprise. Ready to unlock it? 💗</p>
+      <div class="buttons">
+        <button class="primary" id="startBtn">YES, LET'S GO! ✨</button>
+        <button class="secondary" id="notYetBtn">Wait… 🙈</button>
+      </div>
+      <div class="footer">Made with <span class="heart">♥</span> just for you</div>
+    </section>
+    <div class="footer">Birthday mission: <span id="progressText">0 of 5 surprises unlocked</span></div>
+  </main>
+
+  <script>
+    // CUSTOMIZE THIS: Replace the sample name and messages with your own.
+    const sisterName = "Birthday Girl";
+    const brotherName = "Your Brother";
+
+    const questions = [
+      {
+        emoji: "🥹",
+        title: "First question!",
+        text: "Do you know how special you are to our family?",
+        yes: "Of course you do! 💖",
+        no: "Well, let me remind you! 🫶",
+        response: "You make ordinary days brighter just by being yourself."
+      },
+      {
+        emoji: "😎",
+        title: "Be honest…",
+        text: "Is your brother the coolest person ever?",
+        yes: "Correct answer! 😂",
+        no: "Hmm… suspicious answer! 😜",
+        response: "Okay, okay — today is your day, so you win this round!"
+      },
+      {
+        emoji: "🍰",
+        title: "Birthday rule #1",
+        text: "Should you get extra cake today?",
+        yes: "Absolutely YES! 🍰",
+        no: "No? Think again! 😆",
+        response: "Birthday calories don't count in this little game. Cake is mandatory!"
+      },
+      {
+        emoji: "🌈",
+        title: "One more thing…",
+        text: "Will you promise to keep smiling and chasing your dreams?",
+        yes: "That's my girl! 🌟",
+        no: "I'll still cheer you on! 💗",
+        response: "Whatever life brings, remember you have people who are always rooting for you."
+      },
+      {
+        emoji: "🎁",
+        title: "Ready for the final surprise?",
+        text: "Should we open your birthday message now?",
+        yes: "OPEN MY SURPRISE! 🎉",
+        no: "Okay… just one tiny peek? 👀",
+        response: "Surprise unlocked!"
+      }
+    ];
+
+    const screen = document.getElementById("screen");
+    const progressText = document.getElementById("progressText");
+    let current = -1;
+    const answers = [];
+
+    function escapeHTML(value) {
+      return String(value).replace(/[&<>"']/g, ch => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+      }[ch]));
+    }
+
+    function renderQuestion(index) {
+      current = index;
+      const q = questions[index];
+      progressText.textContent = `${index} of ${questions.length} surprises unlocked`;
+      screen.innerHTML = `
+        <div class="eyebrow">Birthday mission · Question ${index + 1}</div>
+        <div class="emoji" aria-hidden="true">${q.emoji}</div>
+        <h2>${escapeHTML(q.title)}</h2>
+        <p>${escapeHTML(q.text)}</p>
+        <div class="buttons">
+          <button class="primary" id="yesBtn">${escapeHTML(q.yes)}</button>
+          <button class="secondary" id="noBtn">${escapeHTML(q.no)}</button>
+        </div>
+        <div class="progress"><div class="bar" style="width:${(index / questions.length) * 100}%"></div></div>
+        <div class="step">${index + 1} / ${questions.length}</div>
+      `;
+      document.getElementById("yesBtn").addEventListener("click", () => answer(true));
+      document.getElementById("noBtn").addEventListener("click", () => answer(false));
+    }
+
+    function answer(isYes) {
+      answers[current] = isYes;
+      const q = questions[current];
+      if (current === questions.length - 1) {
+        showFinal();
+        return;
+      }
+      screen.innerHTML = `
+        <div class="eyebrow">Your answer is locked in!</div>
+        <div class="emoji" aria-hidden="true">${isYes ? "💗" : "🙈"}</div>
+        <h2>${escapeHTML(isYes ? q.yes : q.no)}</h2>
+        <p>${escapeHTML(q.response)}</p>
+        <div class="buttons"><button class="primary" id="nextBtn">Next surprise →</button></div>
+      `;
+      document.getElementById("nextBtn").addEventListener("click", () => renderQuestion(current + 1));
+      progressText.textContent = `${current + 1} of ${questions.length} surprises unlocked`;
+    }
+
+    function showFinal() {
+      progressText.textContent = `${questions.length} of ${questions.length} surprises unlocked`;
+      screen.innerHTML = `
+        <div class="eyebrow">Surprise unlocked!</div>
+        <div class="emoji" aria-hidden="true">🎂</div>
+        <h1>Happy Birthday, ${escapeHTML(sisterName)}! 💖</h1>
+        <p>Wishing you a year full of laughter, beautiful memories, big dreams, and little everyday joys.</p>
+        <p>You are loved more than words can say. Never forget how important you are to us.</p>
+        <h2>Lots of love,</h2>
+        <p><strong>${escapeHTML(brotherName)} 💗</strong></p>
+        <div class="buttons">
+          <button class="primary" id="celebrateBtn">CELEBRATE! 🎉</button>
+          <button class="secondary" id="againBtn">Play again ↻</button>
+        </div>
+        <div class="edit-note">Tip: To add a real photo, see the setup instructions that came with this website.</div>
+      `;
+      document.getElementById("celebrateBtn").addEventListener("click", confettiBurst);
+      document.getElementById("againBtn").addEventListener("click", () => {
+        answers.length = 0; current = -1; start();
+      });
+      confettiBurst();
+    }
+
+    function start() { renderQuestion(0); }
+
+    document.getElementById("startBtn").addEventListener("click", start);
+    document.getElementById("notYetBtn").addEventListener("click", () => {
+      screen.innerHTML = `
+        <div class="emoji" aria-hidden="true">🥺💗</div>
+        <h2>Pretty please?</h2>
+        <p>Your surprise isn't going anywhere. Take your time — tap when you're ready!</p>
+        <div class="buttons"><button class="primary" id="readyBtn">Okay, I'm ready! ✨</button></div>
+      `;
+      document.getElementById("readyBtn").addEventListener("click", () => {
+        screen.innerHTML = `
+          <div class="eyebrow">A little surprise just for you</div><div class="emoji">🎀</div>
+          <h1>Hey, Birthday Girl!</h1><p>Ready to unlock your surprise? 💗</p>
+          <div class="buttons"><button class="primary" id="restartStart">YES, LET'S GO! ✨</button></div>`;
+        document.getElementById("restartStart").addEventListener("click", start);
+      });
+    });
+
+    function confettiBurst() {
+      const pieces = ["🎉", "💗", "✨", "🎊", "💕"];
+      for (let i = 0; i < 55; i++) {
+        const piece = document.createElement("span");
+        piece.className = "confetti";
+        piece.textContent = pieces[Math.floor(Math.random() * pieces.length)];
+        piece.style.left = Math.random() * 100 + "vw";
+        piece.style.animationDelay = Math.random() * .8 + "s";
+        piece.style.fontSize = (12 + Math.random() * 18) + "px";
+        document.body.appendChild(piece);
+        setTimeout(() => piece.remove(), 4500);
+      }
+    }
+
+    // Floating hearts and stars in the background.
+    const floaties = document.getElementById("floaties");
+    for (let i = 0; i < 18; i++) {
+      const el = document.createElement("span");
+      el.className = "floaty";
+      el.textContent = ["♡", "♥", "✦", "✨"][i % 4];
+      el.style.left = Math.random() * 100 + "%";
+      el.style.animationDuration = (8 + Math.random() * 12) + "s";
+      el.style.animationDelay = (-Math.random() * 15) + "s";
+      el.style.fontSize = (18 + Math.random() * 22) + "px";
+      floaties.appendChild(el);
+    }
+  </script>
+</body>
+</html>
